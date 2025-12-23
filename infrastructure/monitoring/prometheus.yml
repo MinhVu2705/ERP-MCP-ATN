@@ -1,0 +1,48 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Frontend
+  - job_name: 'frontend'
+    static_configs:
+      - targets: ['frontend:3000']
+
+  # MCP Orchestrator
+  - job_name: 'mcp-orchestrator'
+    static_configs:
+      - targets: ['mcp-orchestrator:8000']
+    metrics_path: '/metrics'
+
+  # AI Engine
+  - job_name: 'ai-engine'
+    static_configs:
+      - targets: ['ai-engine:8001']
+    metrics_path: '/metrics'
+
+  # Document API
+  - job_name: 'document-api'
+    static_configs:
+      - targets: ['document-api:8002']
+    metrics_path: '/metrics'
+
+  # ERP Core
+  - job_name: 'erp-core'
+    static_configs:
+      - targets: ['erp-core:8080']
+    metrics_path: '/actuator/prometheus'
+
+  # PostgreSQL
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres:5432']
+
+  # Redis
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
