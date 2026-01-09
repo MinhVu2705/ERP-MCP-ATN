@@ -2,8 +2,10 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 from app.config import settings
-from app.routers import ocr, search, qa
+from app.routers import ocr, search, qa, documents
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -28,6 +30,10 @@ app.add_middleware(
 app.include_router(ocr.router, prefix="/api/ocr", tags=["ocr"])
 app.include_router(search.router, prefix="/api/search", tags=["search"])
 app.include_router(qa.router, prefix="/api/qa", tags=["qa"])
+app.include_router(documents.router, prefix="/api/documents", tags=["documents"])
+
+# Metrics
+Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 @app.get("/")
 async def root():

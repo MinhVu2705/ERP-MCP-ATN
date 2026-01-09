@@ -25,11 +25,11 @@ spec:
             secretKeyRef:
               name: erp-secrets
               key: database-url
-        - name: OPENAI_API_KEY
+        - name: GEMINI_API_KEY
           valueFrom:
             secretKeyRef:
               name: erp-secrets
-              key: openai-api-key
+              key: gemini-api-key
         resources:
           requests:
             memory: "512Mi"

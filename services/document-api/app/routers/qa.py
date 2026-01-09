@@ -1,14 +1,34 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_community.vectorstores import Chroma
-from langchain.chains import RetrievalQA
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 import httpx
 from app.config import settings
 
 router = APIRouter()
+
+
+def _get_vectorstore(embeddings):
+    try:
+        import chromadb
+        from langchain_community.vectorstores import Chroma
+    except Exception:
+        return None
+
+    try:
+        chroma_client = chromadb.HttpClient(host=settings.CHROMA_HOST, port=settings.CHROMA_PORT)
+        chroma_client.heartbeat()
+        return Chroma(
+            client=chroma_client,
+            collection_name="erp_documents",
+            embedding_function=embeddings,
+        )
+    except Exception:
+        return Chroma(
+            collection_name="erp_documents",
+            embedding_function=embeddings,
+            persist_directory="./chroma_db",
+        )
 
 class QARequest(BaseModel):
     """Q&A request model"""
@@ -75,21 +95,29 @@ async def query_internal_docs(question: str) -> tuple[str, List[dict], float]:
     Query internal documents using RAG
     """
     try:
+        if not settings.GEMINI_API_KEY:
+            return "GEMINI_API_KEY chưa được cấu hình để truy vấn tài liệu nội bộ.", [], 0.0
+
+        try:
+            from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+        except Exception:
+            return "Thiếu dependency langchain-google-genai để truy vấn tài liệu nội bộ.", [], 0.0
+
         # Initialize LLM and embeddings
-        llm = ChatOpenAI(
-            model="gpt-4-turbo-preview",
-            api_key=settings.OPENAI_API_KEY,
-            temperature=0.1
+        llm = ChatGoogleGenerativeAI(
+            model=settings.GEMINI_MODEL,
+            google_api_key=settings.GEMINI_API_KEY,
+            temperature=0.1,
+        )
+
+        embeddings = GoogleGenerativeAIEmbeddings(
+            model="models/embedding-001",
+            google_api_key=settings.GEMINI_API_KEY,
         )
         
-        embeddings = OpenAIEmbeddings(api_key=settings.OPENAI_API_KEY)
-        
-        # Load vector store
-        vectorstore = Chroma(
-            collection_name="erp_documents",
-            embedding_function=embeddings,
-            persist_directory="./chroma_db"
-        )
+        vectorstore = _get_vectorstore(embeddings)
+        if vectorstore is None:
+            return "Thiếu dependency chromadb/langchain-community để truy vấn tài liệu nội bộ.", [], 0.0
         
         # Create RAG chain
         prompt_template = """Use the following pieces of context to answer the question in Vietnamese.
@@ -101,21 +129,18 @@ async def query_internal_docs(question: str) -> tuple[str, List[dict], float]:
         
         Answer in Vietnamese:"""
         
-        PROMPT = PromptTemplate(
-            template=prompt_template,
-            input_variables=["context", "question"]
-        )
+        # Get relevant documents
+        retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+        docs = retriever.get_relevant_documents(question)
         
-        qa_chain = RetrievalQA.from_chain_type(
-            llm=llm,
-            chain_type="stuff",
-            retriever=vectorstore.as_retriever(search_kwargs={"k": 3}),
-            chain_type_kwargs={"prompt": PROMPT},
-            return_source_documents=True
-        )
+        # Combine context from documents
+        context = "\n\n".join([doc.page_content for doc in docs])
         
-        # Get answer
-        result = qa_chain.invoke({"query": question})
+        # Create prompt and get answer
+        prompt = ChatPromptTemplate.from_template(prompt_template)
+        messages = prompt.format_messages(context=context, question=question)
+        
+        result = llm.invoke(messages)
         
         # Extract sources
         sources = [
@@ -123,10 +148,10 @@ async def query_internal_docs(question: str) -> tuple[str, List[dict], float]:
                 "content": doc.page_content[:200],
                 "metadata": doc.metadata
             }
-            for doc in result.get("source_documents", [])
+            for doc in docs
         ]
         
-        return result["result"], sources, 0.8
+        return result.content, sources, 0.8
     
     except Exception as e:
         return "Không thể truy vấn tài liệu nội bộ.", [], 0.0
@@ -157,9 +182,14 @@ async def google_search_fallback(question: str) -> tuple[str, List[dict]]:
                 
                 if items:
                     # Use LLM to synthesize answer from search results
-                    llm = ChatOpenAI(
-                        model="gpt-4-turbo-preview",
-                        api_key=settings.OPENAI_API_KEY
+                    try:
+                        from langchain_google_genai import ChatGoogleGenerativeAI
+                    except Exception as e:
+                        return f"Thiếu dependency langchain-google-genai: {e}", []
+
+                    llm = ChatGoogleGenerativeAI(
+                        model=settings.GEMINI_MODEL,
+                        google_api_key=settings.GEMINI_API_KEY,
                     )
                     
                     context = "\n\n".join([

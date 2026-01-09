@@ -1,276 +1,249 @@
-# ERP-MCP: AI-Powered Enterprise Resource Planning System
+# ERP-MCP: AI-Powered Enterprise Resource Planning
 
-## 🌟 Overview
+Hệ thống ERP tích hợp AI sử dụng Model Context Protocol (MCP) để quản lý doanh nghiệp thông minh.
 
-An intelligent ERP system combining traditional business management with cutting-edge AI capabilities through the Model Context Protocol (MCP).
+## 🚀 Quick Start
 
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Frontend (Next.js)                        │
-│              Dashboard │ Chatbot │ Reports │ Q&A             │
-└─────────────────────────────────────────────────────────────┘
-                              │
-        ┌─────────────────────┼─────────────────────┐
-        │                     │                     │
-┌───────▼────────┐   ┌───────▼────────┐   ┌───────▼────────┐
-│  MCP           │   │  AI Engine     │   │  Document API  │
-│  Orchestrator  │   │  (FastAPI)     │   │  (Python)      │
-│  (Python)      │   │                │   │                │
-│  - Intent      │   │  - NLP/LLM     │   │  - OCR         │
-│  - Workflow    │   │  - Forecasting │   │  - Semantic    │
-│  - API Gateway │   │  - Reporting   │   │  - Contract Q&A│
-└────────────────┘   └────────────────┘   └────────────────┘
-        │
-┌───────▼────────┐
-│  ERP Core      │
-│  (Spring Boot) │
-│  - Finance     │
-│  - Inventory   │
-│  - HR          │
-│  - Sales       │
-└────────────────┘
-```
-
-## 📦 Components
-
-| Component | Technology | Role |
-|-----------|-----------|------|
-| **Frontend** | Next.js + Tailwind + shadcn/ui | Dashboard, Chatbot, Reports, Q&A |
-| **ERP Core** | Java (Spring Boot) | Traditional business operations |
-| **AI Engine** | Python (FastAPI) | NLP, LLM, Forecasting, Reporting |
-| **MCP Orchestrator** | Python | Intent understanding, workflow execution, API orchestration |
-| **Document API** | Python | OCR, Semantic Search, Contract Q&A |
-| **Infrastructure** | Docker + Kubernetes + CI/CD | DevOps, scaling, monitoring |
-
-## 🎯 Use Cases
-
-### 1. Revenue Management & Financial Reporting
-- **Goal**: Automatically aggregate revenue, expenses, profit and display visual reports
-- **Users**: Accountants, Executives
-- **Features**: Real-time KPI dashboards, automated report generation
-- **Example**: "Show me September revenue" → "September revenue reached 2.1 billion, up 10% from August"
-
-### 2. AI Revenue Forecasting
-- **Goal**: Predict revenue trends using machine learning for strategic decisions
-- **Users**: Managers, Executives
-- **Features**: LSTM/Prophet models, trend analysis
-- **Example**: "What's Q4 revenue forecast?" → "Expected to increase 12.5% from Q3, approximately 3.2 billion VND"
-
-### 3. Intelligent Q&A on ERP Data
-- **Goal**: Query ERP data using natural language
-- **Users**: All staff
-- **Features**: NLQ (Natural Language Query), RAG engine
-- **Example**: "Product A revenue in September?" → "Product A revenue in September was 850 million VND, up 12%"
-
-### 4. Executive Dashboard
-- **Goal**: Overview KPIs for enterprise management (finance, HR, inventory, production)
-- **Users**: Executive Board
-- **Features**: Real-time KPI monitoring, alerts, interactive chatbot
-- **Example**: "Marketing costs this quarter?" → "Q3 marketing costs 420 million, 92% of budget"
-
-### 5. Document Q&A
-- **Goal**: Enable Q&A on internal documents (contracts, processes, reports)
-- **Users**: All staff
-- **Features**: RAG + Google Search fallback, document indexing
-- **Example**: "What is Product A?" → Returns info from internal docs or searches online
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- Python 3.11+
-- Java 17+
+### Yêu cầu
 - Docker & Docker Compose
-- PostgreSQL 15+
+- Node.js 18+ (cho frontend development)
+- Java 21+ (cho backend development)
+- Python 3.11+ (cho AI services)
 
-### Quick Start
+### Khởi động hệ thống
 
 ```bash
-# Clone repository
-git clone https://github.com/your-org/ERP-MCP.git
+# 1. Clone repository
+git clone <repository-url>
 cd ERP-MCP
 
-# Start all services with Docker Compose
+# 2. Tạo file .env từ template
+cp .env.example .env
+
+# 3. Cấu hình Google OAuth (nếu cần)
+# Thêm GOOGLE_CLIENT_ID và GOOGLE_CLIENT_SECRET vào .env
+
+# 4. Khởi động tất cả services
 docker-compose up -d
 
-# Access services
+# 5. Truy cập ứng dụng
 # Frontend: http://localhost:3000
+# ERP Core API: http://localhost:8080
 # MCP Orchestrator: http://localhost:8000
 # AI Engine: http://localhost:8001
 # Document API: http://localhost:8002
-# ERP Core: http://localhost:8080
 ```
 
-### Development Setup
+### Kiểm tra trạng thái
 
-#### Frontend (Next.js)
+```bash
+docker-compose ps
+docker-compose logs -f [service-name]
+```
+
+## 🏗️ Kiến trúc
+
+```
+┌──────────────────────────────────────────────┐
+│         Frontend (Next.js + React)           │
+│     Dashboard | Chat | Reports | Analytics   │
+└────────────────┬─────────────────────────────┘
+                 │
+    ┌────────────┼────────────┐
+    │            │            │
+┌───▼───────┐ ┌─▼────────┐ ┌─▼──────────┐
+│  MCP      │ │ AI       │ │ Document   │
+│  Orch.    │ │ Engine   │ │ API        │
+│ (Python)  │ │(Python)  │ │ (Python)   │
+└───┬───────┘ └──────────┘ └────────────┘
+    │
+┌───▼──────────┐
+│  ERP Core    │
+│ (Spring Boot)│
+│   + PostgreSQL│
+└──────────────┘
+```
+
+## 📦 Services
+
+| Service | Port | Mô tả |
+|---------|------|-------|
+| **Frontend** | 3000 | Giao diện web Next.js với TailwindCSS |
+| **ERP Core** | 8080 | API backend Spring Boot (Finance, HR, Inventory, Sales) |
+| **MCP Orchestrator** | 8000 | Điều phối workflow và intent understanding |
+| **AI Engine** | 8001 | NLP, forecasting, báo cáo tự động |
+| **Document API** | 8002 | OCR, semantic search, Q&A documents |
+| **PostgreSQL** | 5432 | Database chính |
+| **Redis** | 6379 | Cache và session |
+| **MinIO** | 9000 | Object storage (S3-compatible) |
+| **ChromaDB** | 8003 | Vector database cho semantic search |
+
+## 🎯 Tính năng chính
+
+### 1. **Dashboard Thông minh**
+- Tổng quan tài chính, doanh thu, chi phí realtime
+- Biểu đồ trực quan với Recharts
+- KPI cards và recent activities
+
+### 2. **AI Chatbot**
+- Trò chuyện tự nhiên bằng tiếng Việt/Anh
+- Truy vấn dữ liệu ERP qua câu hỏi
+- Tích hợp Google Gemini AI
+
+### 3. **Document Management**
+- Upload và OCR tự động
+- Semantic search qua vector database
+- Q&A trên documents (hợp đồng, báo cáo)
+
+### 4. **Forecasting**
+- Dự báo doanh thu sử dụng Prophet
+- Phân tích xu hướng
+- Recommendations tự động
+
+### 5. **Reporting**
+- Tạo báo cáo tự động bằng AI
+- Export PDF/Excel
+- Scheduled reports
+
+## 🔧 Development
+
+### Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
+# http://localhost:3000
 ```
-
-#### MCP Orchestrator
-```bash
-cd services/mcp-orchestrator
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-```
-
-#### AI Engine
-```bash
-cd services/ai-engine
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8001
-```
-
-#### Document API
-```bash
-cd services/document-api
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8002
-```
-
-#### ERP Core
-```bash
-cd services/erp-core
-./mvnw spring-boot:run
-```
-
-## 🗂️ Project Structure
-
-```
-ERP-MCP/
-├── frontend/                    # Next.js application
-│   ├── app/                    # Next.js 13+ app directory
-│   ├── components/             # React components
-│   ├── lib/                    # Utilities
-│   └── public/                 # Static assets
-├── services/
-│   ├── mcp-orchestrator/       # MCP service
-│   ├── ai-engine/              # AI/ML service
-│   ├── document-api/           # Document processing
-│   └── erp-core/               # Java Spring Boot
-├── infrastructure/
-│   ├── kubernetes/             # K8s manifests
-│   ├── terraform/              # Infrastructure as Code
-│   └── monitoring/             # Prometheus, Grafana configs
-├── docker-compose.yml
-└── README.md
-```
-
-## 🔧 Configuration
-
-### Environment Variables
-
-Create `.env` files in each service directory:
-
-**Frontend (.env.local)**
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_MCP_WS=ws://localhost:8000/ws
-```
-
-**MCP Orchestrator (.env)**
-```env
-DATABASE_URL=postgresql://user:password@localhost:5432/erp_mcp
-ERP_CORE_URL=http://erp-core:8080
-AI_ENGINE_URL=http://ai-engine:8001
-DOCUMENT_API_URL=http://document-api:8002
-OPENAI_API_KEY=your_key_here
-```
-
-**AI Engine (.env)**
-```env
-MODEL_NAME=gpt-4
-DATABASE_URL=postgresql://user:password@localhost:5432/erp_mcp
-```
-
-**ERP Core (application.properties)**
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/erp_core
-spring.datasource.username=user
-spring.datasource.password=password
-```
-
-## 📊 Tech Stack Details
-
-### Frontend
-- **Next.js 14**: React framework with App Router
-- **TypeScript**: Type safety
-- **Tailwind CSS**: Utility-first styling
-- **shadcn/ui**: High-quality component library
-- **React Query**: Data fetching & caching
-- **Zustand**: State management
 
 ### Backend Services
-- **FastAPI**: High-performance Python API framework
-- **LangChain**: LLM orchestration
-- **OpenAI GPT-4**: Natural language processing
-- **Prophet/LSTM**: Time series forecasting
-- **ChromaDB**: Vector database for RAG
-- **Spring Boot**: Enterprise Java framework
+```bash
+# Python services
+cd services/[service-name]
+pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port [PORT]
 
-### Infrastructure
-- **PostgreSQL**: Primary database
-- **Redis**: Caching layer
-- **Docker**: Containerization
-- **Kubernetes**: Orchestration
-- **Nginx**: Reverse proxy
-- **Prometheus + Grafana**: Monitoring
+# Java service
+cd services/erp-core
+mvn spring-boot:run
+```
+
+### Database
+```bash
+# Init database
+docker-compose up -d postgres
+psql -h localhost -U erp_user -d erp_db -f infrastructure/database/init.sql
+```
 
 ## 🧪 Testing
 
 ```bash
-# Frontend tests
-cd frontend
-npm test
+# Run all tests
+docker-compose -f docker-compose.yml -f docker-compose.test.yml up --abort-on-container-exit
 
-# Python services tests
-cd services/mcp-orchestrator
-pytest
-
-# Java tests
-cd services/erp-core
-./mvnw test
+# Specific service
+cd services/[service-name]
+pytest tests/ -v
 ```
 
-## 📈 Monitoring & Observability
+## 🔐 Authentication
 
-- **Prometheus**: Metrics collection
-- **Grafana**: Visualization dashboards
-- **ELK Stack**: Log aggregation
-- **Jaeger**: Distributed tracing
+Hệ thống sử dụng NextAuth.js với Google OAuth:
 
-## 🤝 Contributing
+1. Tạo Google OAuth credentials tại [Google Cloud Console](https://console.cloud.google.com)
+2. Thêm Redirect URI: `http://localhost:3000/api/auth/callback/google`
+3. Cập nhật `.env`:
+```env
+GOOGLE_CLIENT_ID=your-client-id
+GOOGLE_CLIENT_SECRET=your-client-secret
+NEXTAUTH_SECRET=your-secret-key
+NEXTAUTH_URL=http://localhost:3000
+```
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
+## 📊 Demo Data
 
-## 📝 License
+```bash
+# Load demo data
+docker exec -it erp-core java -jar app.jar --spring.profiles.active=demo
+```
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+Demo data bao gồm: 1000 customers, products, transactions, employees, suppliers, warehouses.
 
-## 👥 Team
+## 🛠️ Tech Stack
 
-- **Product Owner**: [Name]
-- **Tech Lead**: [Name]
-- **Frontend Team**: [Names]
-- **Backend Team**: [Names]
-- **AI/ML Team**: [Names]
+- **Frontend**: Next.js 14, React 18, TypeScript, TailwindCSS, shadcn/ui
+- **Backend**: Spring Boot 3.5, Java 21
+- **AI/ML**: FastAPI, LangChain, Google Gemini, Prophet, TensorFlow
+- **Database**: PostgreSQL 15, Redis 7, ChromaDB
+- **Infrastructure**: Docker, Docker Compose, Nginx
+- **Storage**: MinIO (S3-compatible)
 
-## 📞 Support
+## 📝 Environment Variables
 
-For support, email support@erp-mcp.com or join our Slack channel.
+```env
+# Database
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=erp_db
+POSTGRES_USER=erp_user
+POSTGRES_PASSWORD=erp_password
+
+# Redis
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+# AI
+GOOGLE_API_KEY=your-gemini-api-key
+
+# OAuth
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+NEXTAUTH_SECRET=your-nextauth-secret
+NEXTAUTH_URL=http://localhost:3000
+
+# MinIO
+MINIO_ROOT_USER=minioadmin
+MINIO_ROOT_PASSWORD=minioadmin
+```
+
+## 🐛 Troubleshooting
+
+### Services không healthy
+```bash
+docker-compose ps
+docker logs [service-name]
+```
+
+### Port conflicts
+```bash
+# Kiểm tra ports đang dùng
+netstat -ano | findstr :[PORT]
+# Hoặc thay đổi port trong docker-compose.yml
+```
+
+### Database connection errors
+```bash
+docker-compose restart postgres
+docker exec -it erp-postgres psql -U erp_user -d erp_db
+```
+
+### Frontend build errors
+```bash
+cd frontend
+rm -rf node_modules .next
+npm install
+npm run build
+```
+
+## 📄 License
+
+MIT License
+
+## 👥 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+---
+
+**Phát triển bởi**: ERP-MCP Team  
+**Version**: 1.0.0  
+**Last Updated**: January 2026

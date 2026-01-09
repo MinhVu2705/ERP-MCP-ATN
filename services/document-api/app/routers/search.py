@@ -1,8 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List
-from langchain_openai import OpenAIEmbeddings
-from langchain_community.vectorstores import Chroma
 from app.config import settings
 
 router = APIRouter()
@@ -24,6 +22,29 @@ class SearchResponse(BaseModel):
     results: List[SearchResult]
     total: int
 
+
+def _get_vectorstore(embeddings):
+    try:
+        import chromadb
+        from langchain_community.vectorstores import Chroma
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Vector search requires chromadb + langchain-community: {e}")
+
+    try:
+        chroma_client = chromadb.HttpClient(host=settings.CHROMA_HOST, port=settings.CHROMA_PORT)
+        chroma_client.heartbeat()
+        return Chroma(
+            client=chroma_client,
+            collection_name="erp_documents",
+            embedding_function=embeddings,
+        )
+    except Exception:
+        return Chroma(
+            collection_name="erp_documents",
+            embedding_function=embeddings,
+            persist_directory="./chroma_db",
+        )
+
 @router.post("/semantic", response_model=SearchResponse)
 async def semantic_search(request: SearchRequest):
     """
@@ -34,15 +55,21 @@ async def semantic_search(request: SearchRequest):
     Uses ChromaDB + OpenAI embeddings for vector similarity search
     """
     try:
-        # Initialize embeddings
-        embeddings = OpenAIEmbeddings(api_key=settings.OPENAI_API_KEY)
-        
-        # Connect to ChromaDB
-        vectorstore = Chroma(
-            collection_name="erp_documents",
-            embedding_function=embeddings,
-            persist_directory="./chroma_db"
+        if not settings.GEMINI_API_KEY:
+            return SearchResponse(results=[], total=0)
+
+        try:
+            from langchain_google_genai import GoogleGenerativeAIEmbeddings
+        except Exception as e:
+            raise HTTPException(status_code=503, detail=f"Gemini embeddings require langchain-google-genai: {e}")
+
+        # Initialize embeddings using Gemini
+        embeddings = GoogleGenerativeAIEmbeddings(
+            model="models/embedding-001",
+            google_api_key=settings.GEMINI_API_KEY,
         )
+        
+        vectorstore = _get_vectorstore(embeddings)
         
         # Perform similarity search
         docs = vectorstore.similarity_search_with_score(
@@ -76,13 +103,20 @@ async def index_document(content: str, metadata: dict):
     This should be called when new documents are uploaded
     """
     try:
-        embeddings = OpenAIEmbeddings(api_key=settings.OPENAI_API_KEY)
-        
-        vectorstore = Chroma(
-            collection_name="erp_documents",
-            embedding_function=embeddings,
-            persist_directory="./chroma_db"
+        if not settings.GEMINI_API_KEY:
+            raise HTTPException(status_code=503, detail="GEMINI_API_KEY is not configured")
+
+        try:
+            from langchain_google_genai import GoogleGenerativeAIEmbeddings
+        except Exception as e:
+            raise HTTPException(status_code=503, detail=f"Gemini embeddings require langchain-google-genai: {e}")
+
+        embeddings = GoogleGenerativeAIEmbeddings(
+            model="models/embedding-001",
+            google_api_key=settings.GEMINI_API_KEY,
         )
+        
+        vectorstore = _get_vectorstore(embeddings)
         
         # Add document to vector store
         vectorstore.add_texts(

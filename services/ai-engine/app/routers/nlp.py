@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List
-from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.prompts import ChatPromptTemplate
 from app.config import settings
 
 router = APIRouter()
@@ -33,10 +33,10 @@ async def detect_intent(request: NLPRequest):
     """
     try:
         # Use LLM for intent classification
-        llm = ChatOpenAI(
+        llm = ChatGoogleGenerativeAI(
             model=settings.MODEL_NAME,
-            api_key=settings.OPENAI_API_KEY,
-            temperature=0.1
+            google_api_key=settings.GEMINI_API_KEY,
+            temperature=0.1,
         )
         
         prompt = ChatPromptTemplate.from_messages([
@@ -74,9 +74,9 @@ async def summarize_text(text: str):
     Use Case 5: Khai phá dữ liệu văn bản
     """
     try:
-        llm = ChatOpenAI(
+        llm = ChatGoogleGenerativeAI(
             model=settings.MODEL_NAME,
-            api_key=settings.OPENAI_API_KEY
+            google_api_key=settings.GEMINI_API_KEY,
         )
         
         prompt = f"Summarize the following text in Vietnamese:\n\n{text}"

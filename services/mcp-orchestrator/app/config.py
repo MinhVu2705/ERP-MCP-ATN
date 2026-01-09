@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     # API Settings
     API_V1_STR: str = "/api"
     PROJECT_NAME: str = "MCP Orchestrator"
+    LOG_LEVEL: str = "INFO"
     
     # CORS
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost"]
@@ -22,9 +23,9 @@ class Settings(BaseSettings):
     AI_ENGINE_URL: str = "http://localhost:8001"
     DOCUMENT_API_URL: str = "http://localhost:8002"
     
-    # OpenAI
-    OPENAI_API_KEY: str = ""
-    OPENAI_MODEL: str = "gpt-4-turbo-preview"
+    # Gemini / Google Generative AI
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-1.5-pro"
     
     # Security
     SECRET_KEY: str = "your-secret-key-here-change-in-production"

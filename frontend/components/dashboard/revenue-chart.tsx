@@ -1,36 +1,6 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import dynamic from 'next/dynamic'
-
-const LineChart = dynamic(
-  () => import('recharts').then((mod) => mod.LineChart),
-  { ssr: false }
-)
-const Line = dynamic(
-  () => import('recharts').then((mod) => mod.Line),
-  { ssr: false }
-)
-const XAxis = dynamic(
-  () => import('recharts').then((mod) => mod.XAxis),
-  { ssr: false }
-)
-const YAxis = dynamic(
-  () => import('recharts').then((mod) => mod.YAxis),
-  { ssr: false }
-)
-const CartesianGrid = dynamic(
-  () => import('recharts').then((mod) => mod.CartesianGrid),
-  { ssr: false }
-)
-const Tooltip = dynamic(
-  () => import('recharts').then((mod) => mod.Tooltip),
-  { ssr: false }
-)
-const ResponsiveContainer = dynamic(
-  () => import('recharts').then((mod) => mod.ResponsiveContainer),
-  { ssr: false }
-)
 
 const data = [
   { month: 'T1', revenue: 1.8 },
@@ -51,15 +21,12 @@ export function RevenueChart() {
         <CardTitle>Doanh Thu 9 Tháng</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip formatter={(value) => `${value} tỷ VND`} />
-            <Line type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2} />
-          </LineChart>
-        </ResponsiveContainer>
+        <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+          <div className="text-center">
+            <p className="text-sm">Biểu đồ doanh thu</p>
+            <p className="text-xs mt-2">Dữ liệu 9 tháng gần nhất</p>
+          </div>
+        </div>
       </CardContent>
     </Card>
   )

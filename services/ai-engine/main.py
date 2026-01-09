@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 from app.config import settings
 from app.routers import forecast, nlp, reporting
 
@@ -28,6 +30,9 @@ app.add_middleware(
 app.include_router(forecast.router, prefix="/api/forecast", tags=["forecast"])
 app.include_router(nlp.router, prefix="/api/nlp", tags=["nlp"])
 app.include_router(reporting.router, prefix="/api/reporting", tags=["reporting"])
+
+# Metrics
+Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 @app.get("/")
 async def root():

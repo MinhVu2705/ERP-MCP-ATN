@@ -1,0 +1,62 @@
+# Development override for docker-compose
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.override.yml up
+
+services:
+  # Override for frontend in development
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+
+  # Override for mcp-orchestrator in development
+  mcp-orchestrator:
+    volumes:
+      - ./services/mcp-orchestrator:/app
+    environment:
+      - LOG_LEVEL=DEBUG
+      - RELOAD=true
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Override for ai-engine in development
+  ai-engine:
+    volumes:
+      - ./services/ai-engine:/app
+    environment:
+      - LOG_LEVEL=DEBUG
+      - RELOAD=true
+    command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+
+  # Override for document-api in development
+  document-api:
+    volumes:
+      - ./services/document-api:/app
+    environment:
+      - LOG_LEVEL=DEBUG
+      - RELOAD=true
+    command: uvicorn main:app --host 0.0.0.0 --port 8002 --reload
+
+  # PostgreSQL with local volume for development
+  postgres:
+    volumes:
+      - ./infrastructure/database/data:/var/lib/postgresql/data
+      - ./infrastructure/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
+  # Redis with local volume
+  redis:
+    volumes:
+      - ./infrastructure/database/redis-data:/data
+    ports:
+      - "6379:6379"
