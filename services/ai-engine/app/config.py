@@ -11,9 +11,9 @@ class Settings(BaseSettings):
     # Redis
     REDIS_URL: str = "redis://localhost:6379"
     
-    # Gemini / Google Generative AI
-    GEMINI_API_KEY: str = ""
-    MODEL_NAME: str = "gemini-1.5-pro"
+    # Gemini / Google Generative AI (multiple keys for rotation)
+    GEMINI_API_KEYS: str = ""
+    MODEL_NAME: str = "gemini-2.5-flash-latest"
     
     # ChromaDB
     CHROMA_HOST: str = "localhost"

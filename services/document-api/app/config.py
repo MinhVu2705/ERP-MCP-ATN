@@ -15,8 +15,9 @@ class Settings(BaseSettings):
     CHROMA_HOST: str = "localhost"
     CHROMA_PORT: int = 8000
     
-    # Gemini / Google Generative AI for embeddings and LLM
-    GEMINI_API_KEY: str = ""
+    # Gemini / Google Generative AI for embeddings and LLM (multiple keys for rotation)
+    GEMINI_API_KEYS: str = ""
+    GEMINI_MODEL: str = "gemini-2.5-flash-latest"
     
     # Google Search API (Custom Search)
     GOOGLE_API_KEY: str = ""

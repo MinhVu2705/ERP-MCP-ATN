@@ -23,9 +23,9 @@ class Settings(BaseSettings):
     AI_ENGINE_URL: str = "http://localhost:8001"
     DOCUMENT_API_URL: str = "http://localhost:8002"
     
-    # Gemini / Google Generative AI
-    GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-1.5-pro"
+    # Gemini / Google Generative AI (multiple keys for rotation)
+    GEMINI_API_KEYS: str = ""
+    GEMINI_MODEL: str = "gemini-2.5-flash-latest"
     
     # Security
     SECRET_KEY: str = "your-secret-key-here-change-in-production"

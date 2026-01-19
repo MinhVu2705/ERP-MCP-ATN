@@ -1,20 +1,41 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 import logging
 
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.config import settings
 from app.routers import ocr, search, qa, documents
+from app.utils.api_key_manager import init_key_manager
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifecycle management"""
+    logger.info("🚀 Starting Document API...")
+    
+    # Initialize API key manager
+    if settings.GEMINI_API_KEYS:
+        try:
+            key_manager = init_key_manager(settings.GEMINI_API_KEYS)
+            logger.info(f"✅ API key manager initialized with {len(key_manager.api_keys)} keys")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize API key manager: {e}")
+    else:
+        logger.warning("⚠️ No Gemini API keys configured")
+    
+    yield
+    logger.info("👋 Shutting down Document API...")
+
 app = FastAPI(
     title="Document API",
     description="OCR, Semantic Search, and Document Q&A service",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # CORS middleware
